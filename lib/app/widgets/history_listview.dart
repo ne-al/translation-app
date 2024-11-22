@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:improve/app/widgets/translated_word_history_tile.dart';
 import 'package:improve/core/services/translation_service.dart';
+import 'package:improve/core/services/tts.dart';
 
 class HistoryListView extends StatelessWidget {
   final bool isHomePage;
   final bool isSortedByTime;
+
   const HistoryListView({
     super.key,
     this.isHomePage = false,
@@ -44,15 +47,13 @@ class HistoryListView extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             Map data = sortedData[index];
             return InkWell(
+              onTap: () => speakWord(data["text"], data["to_language"]),
               onLongPress: () {
-                TranslationService().deleteTranslation(
-                  data["text"],
-                  data["from_language"],
-                  data["to_language"],
-                );
+                _showDeleteCopyDialog(context, data);
               },
               child: TranslatedWordHistoryTile(
                 value: data,
+                isSearchedTimesVisible: !isSortedByTime,
               ),
             );
           },
@@ -60,4 +61,47 @@ class HistoryListView extends StatelessWidget {
       },
     );
   }
+}
+
+Future _showDeleteCopyDialog(BuildContext context, Map data) {
+  return showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Delete or Copy?"),
+      content: const Text("Do you want to delete or copy this word?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () async {
+            await TranslationService().deleteTranslation(
+              data["text"],
+              data["from_language"],
+              data["to_language"],
+            );
+            if (!context.mounted) return;
+            Navigator.pop(context);
+          },
+          child: const Text("Delete"),
+        ),
+        TextButton(
+          onPressed: () async {
+            await Clipboard.setData(
+              ClipboardData(text: data["text"]),
+            );
+
+            if (!context.mounted) return;
+            Navigator.pop(context);
+          },
+          child: const Text("Copy"),
+        ),
+      ],
+      actionsAlignment: MainAxisAlignment.end,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+    ),
+  );
 }

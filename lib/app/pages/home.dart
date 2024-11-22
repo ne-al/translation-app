@@ -1,6 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -10,6 +9,7 @@ import 'package:improve/app/widgets/history_listview.dart';
 import 'package:improve/app/widgets/translated_word_tile.dart';
 import 'package:improve/core/data/languages.dart';
 import 'package:improve/core/services/translation_service.dart';
+import 'package:improve/core/services/tts.dart';
 import 'package:translator/translator.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   String? selectedFromLng = "Auto";
   String? selectedToLng = "Hindi";
   Map lang = {};
-  FlutterTts flutterTts = FlutterTts();
+
   Box libraryBox = Hive.box('LIBRARY');
   Translation? translation;
 
@@ -59,63 +59,6 @@ class _HomePageState extends State<HomePage> {
     );
 
     setState(() {});
-  }
-
-  Future<void> speakWord(Translation word) async {
-    String ttsLang;
-
-    await flutterTts.setSpeechRate(0.5);
-
-    switch (lang[selectedToLng]) {
-      case "hi":
-        ttsLang = "hi-IN";
-        break;
-      case "en":
-        ttsLang = "en-IN";
-        break;
-      case "kn":
-        ttsLang = "kn-IN";
-        break;
-      case "as":
-        ttsLang = "as-IN";
-        break;
-      case "bn":
-        ttsLang = "bn-IN";
-        break;
-      case "ta":
-        ttsLang = "ta-IN";
-        break;
-      case "mr":
-        ttsLang = "mr-IN";
-        break;
-      case "ml":
-        ttsLang = "ml-IN";
-        break;
-      case "sa":
-        ttsLang = "sa-IN";
-        break;
-      case "gu":
-        ttsLang = "gu-IN";
-        break;
-      case "pa":
-        ttsLang = "pa-IN";
-        break;
-      case "or":
-        ttsLang = "or-IN";
-        break;
-      case "ne":
-        ttsLang = "ne-NP";
-        break;
-      case "ja":
-        ttsLang = "ja-JP";
-        break;
-      default:
-        ttsLang = "hi-IN";
-    }
-
-    await flutterTts.setLanguage(ttsLang);
-
-    await flutterTts.speak(word.text);
   }
 
   @override
@@ -322,7 +265,10 @@ class _HomePageState extends State<HomePage> {
                           : Padding(
                               padding: const EdgeInsets.only(top: 20),
                               child: InkWell(
-                                onTap: () => speakWord(translation!),
+                                onTap: () => speakWord(
+                                  translation!.text,
+                                  translation!.targetLanguage.name,
+                                ),
                                 child: TranslatedWordTile(
                                   translation: translation!,
                                 ),
