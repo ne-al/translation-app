@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:improve/app/widgets/history_listview.dart';
+import 'package:improve/core/services/translation_service.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -26,6 +28,14 @@ class _HistoryPageState extends State<HistoryPage> {
                     "History",
                     style: GoogleFonts.lato(),
                   ),
+                  actions: [
+                    IconButton(
+                      onPressed: () async {
+                        await TranslationService().clearAllTranslations();
+                      },
+                      icon: const Icon(Iconsax.trash),
+                    )
+                  ],
                   bottom: const TabBar(
                     tabs: [
                       Tab(text: "Latest"),

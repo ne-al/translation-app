@@ -1,24 +1,44 @@
+import 'package:free_dictionary_api_v2/free_dictionary_api_v2.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:translator/translator.dart';
 
 class TranslationService {
   final translator = GoogleTranslator();
   Box libraryBox = Hive.box('LIBRARY');
+  Logger logger = Logger();
 
   // translate text
-  Future<Translation> translate(
+  Future<Map> translate(
     String word, {
     String translationFromLanguage = 'auto',
     String translationToLanguage = 'hi',
   }) async {
+    List<FreeDictionaryResponse> meanings = [];
     Translation response = await translator.translate(
       word,
       from: translationFromLanguage,
       to: translationToLanguage,
     );
 
+    if (translationToLanguage == "en") {
+      meanings = await getWordMeaning(word);
+    }
+
     saveTranslation(response);
-    return response;
+    return {
+      "translation": response,
+      "meanings": meanings,
+    };
+  }
+
+  // get word meaning if is in english
+  Future<List<FreeDictionaryResponse>> getWordMeaning(String word) async {
+    var meanings = await FreeDictionaryApiV2().getDefinition(word);
+
+    logger.e(meanings);
+
+    return meanings;
   }
 
   // save translated text to library
@@ -49,8 +69,6 @@ class TranslationService {
       updatedTranslation["times_searched"] =
           (updatedTranslation["times_searched"] ?? 0) + 1;
 
-      print(libraryBox.getAt(index));
-
       // Write the updated translation back to the box
       await libraryBox.putAt(index, updatedTranslation);
     } else {
@@ -67,7 +85,7 @@ class TranslationService {
         "last_failed_to_guess": null,
         "success_guesses": [],
         "last_success_to_guess": null,
-        "times_searched": 1, // Initial times_searched as 1
+        "times_searched": 1,
       });
     }
   }

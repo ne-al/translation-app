@@ -38,7 +38,7 @@ class HistoryListView extends StatelessWidget {
               });
 
         sortedData =
-            isHomePage ? sortedData.take(10).toList() : sortedData.toList();
+            isHomePage ? sortedData.take(8).toList() : sortedData.toList();
 
         return ListView.builder(
           shrinkWrap: true,
