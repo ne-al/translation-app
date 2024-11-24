@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:improve/app/pages/history.dart';
+import 'package:improve/app/pages/new_words.dart';
 import 'package:improve/app/widgets/history_listview.dart';
 import 'package:improve/app/widgets/translated_word_tile.dart';
 import 'package:improve/core/constants/const.dart';
@@ -192,8 +193,7 @@ class _HomePageState extends State<HomePage> {
                             height: 52,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color:
-                                  Theme.of(context).colorScheme.inversePrimary,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
@@ -202,9 +202,7 @@ class _HomePageState extends State<HomePage> {
                                 style: GoogleFonts.lato(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inverseSurface,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -228,12 +226,22 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            taskButton(
-                              constraints,
-                              Iconsax.box,
-                              "Learn new words",
-                              "0/10",
-                              1,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const NewWordsPage(),
+                                  ),
+                                );
+                              },
+                              child: taskButton(
+                                constraints,
+                                Iconsax.box,
+                                "Learn new words",
+                                "0/10",
+                                1,
+                              ),
                             ),
                             taskButton(
                               constraints,
@@ -497,8 +505,8 @@ class _HomePageState extends State<HomePage> {
       width: constraints.maxWidth * 0.38,
       decoration: BoxDecoration(
         color: index.isOdd
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.secondaryContainer,
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondary,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
@@ -508,13 +516,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           CircleAvatar(
             backgroundColor: index.isOdd
-                ? Theme.of(context).colorScheme.primaryFixedDim
-                : Theme.of(context).colorScheme.secondaryFixedDim,
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.secondaryContainer,
             child: Icon(
               icon,
               color: index.isOdd
-                  ? Theme.of(context).colorScheme.onPrimaryFixedVariant
-                  : Theme.of(context).colorScheme.onSecondaryFixedVariant,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
           const Expanded(child: SizedBox.shrink()),
@@ -524,8 +532,8 @@ class _HomePageState extends State<HomePage> {
               fontSize: 19,
               fontWeight: FontWeight.bold,
               color: index.isOdd
-                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                  : Theme.of(context).colorScheme.onSecondaryContainer,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
           const Gap(4),
@@ -536,8 +544,8 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
               color: index.isOdd
-                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                  : Theme.of(context).colorScheme.onSecondaryContainer,
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
         ],

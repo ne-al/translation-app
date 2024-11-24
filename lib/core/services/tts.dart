@@ -1,11 +1,12 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:improve/core/utils/common.dart';
+import 'package:logger/logger.dart';
 
 Future<void> speakWord(String word, String targetedLang) async {
   FlutterTts flutterTts = FlutterTts();
   String ttsLang;
 
-  Map lang = Common().lang();
+  Map lang = Common().langFromNameToCode();
 
   await flutterTts.setSpeechRate(0.5);
 
@@ -52,9 +53,23 @@ Future<void> speakWord(String word, String targetedLang) async {
     case "ja":
       ttsLang = "ja-JP";
       break;
+    case "es":
+      ttsLang = "es-US";
+      break;
+    case "fr":
+      ttsLang = "fr-FR";
+      break;
+    case "it":
+      ttsLang = "it-IT";
+      break;
+    case "de":
+      ttsLang = "de-US";
+      break;
     default:
       ttsLang = "hi-IN";
   }
+
+  Logger().d(ttsLang);
 
   await flutterTts.setLanguage(ttsLang);
 

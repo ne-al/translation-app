@@ -13,6 +13,7 @@ class TranslationService {
     String word, {
     String translationFromLanguage = 'auto',
     String translationToLanguage = 'hi',
+    bool saveTranslationToLibrary = true,
   }) async {
     List<FreeDictionaryResponse> meanings = [];
     Translation response = await translator.translate(
@@ -21,15 +22,30 @@ class TranslationService {
       to: translationToLanguage,
     );
 
-    if (translationToLanguage == "en") {
-      meanings = await getWordMeaning(word);
+    // if (translationToLanguage == "en") {
+    //   meanings = await getWordMeaning(word);
+    // }
+
+    // else {
+    //   var newWord = await translator.translate(
+    //     word,
+    //     from: "auto",
+    //     to: "en",
+    //   );
+
+    //   meanings = await getWordMeaning(newWord.text);
+    // }
+
+    if (saveTranslationToLibrary) {
+      await saveTranslation(response);
     }
 
-    saveTranslation(response);
-    return {
+    Map data = {
       "translation": response,
       "meanings": meanings,
     };
+
+    return data;
   }
 
   // get word meaning if is in english
