@@ -36,9 +36,7 @@ class RandomWordService {
 
         data = {
           "word": word,
-          "translatedText": translation["translation"].text,
-          "from_language": translation["translation"].sourceLanguage.name,
-          "to_language": translation["translation"].targetLanguage.name,
+          "translation": translation["translation"],
         };
 
         Logger().e(data);

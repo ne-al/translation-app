@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:improve/core/services/random_word_service.dart';
+import 'package:improve/core/services/translation_service.dart';
 import 'package:improve/core/services/tts.dart';
 import 'package:improve/core/utils/common.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -22,6 +24,9 @@ class LearningPage extends StatefulWidget {
 class _LearningPageState extends State<LearningPage> {
   Map? data = {};
   bool isLoading = false;
+  bool isLiked = false;
+  Box libraryBox = Hive.box("LIBRARY");
+  int totalWords = 0;
 
   @override
   void initState() {
@@ -37,8 +42,17 @@ class _LearningPageState extends State<LearningPage> {
     var response = await RandomWordService().getRandomWord(widget.learningLang);
 
     setState(() {
-      data = response;
+      data = {
+        "word": response?["word"],
+        "from_language": response?["translation"].sourceLanguage.name,
+        "to_language": response?["translation"].targetLanguage.name,
+        "translation": response?["translation"],
+        "translatedText": response?["translation"].text,
+      };
       isLoading = false;
+      isLiked = false;
+      totalWords = ++totalWords;
+      Logger().d(data);
     });
   }
 
@@ -49,7 +63,34 @@ class _LearningPageState extends State<LearningPage> {
         return Scaffold(
           body: SafeArea(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.surfaceContainerLow,
+                        child: Icon(
+                          Icons.close,
+                          color:
+                              Theme.of(context).colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      const Gap(14),
+                      Text(
+                        "You've learned $totalWords words so far",
+                        style: GoogleFonts.lato(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -141,11 +182,47 @@ class _LearningPageState extends State<LearningPage> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (isLoading) return;
+
+                              if (!isLiked) {
+                                isLiked = true;
+                                await TranslationService()
+                                    .saveTranslation(data?["translation"]);
+                              } else {
+                                isLiked = false;
+                                await TranslationService().deleteTranslation(
+                                  data?["translatedText"],
+                                  data?["from_language"],
+                                  data?["to_language"],
+                                );
+                              }
+
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  behavior: SnackBarBehavior.floating,
+                                  backgroundColor:
+                                      isLiked ? Colors.green : Colors.red,
+                                  content: Text(
+                                    isLiked
+                                        ? "Saved to library"
+                                        : "Removed from library",
+                                    style: GoogleFonts.lato(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              );
+
+                              setState(() {});
                             },
                             icon: Icon(
-                              Iconsax.heart,
+                              !isLiked ? Iconsax.heart : Iconsax.heart5,
                               color: Theme.of(context)
                                   .colorScheme
                                   .onPrimaryFixedVariant,
